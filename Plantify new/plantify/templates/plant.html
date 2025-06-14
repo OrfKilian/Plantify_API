@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ trivial }} ({{ botanisch }}){% endblock %}
+{% block page_title %}{{ trivial }} ({{ botanisch }}){% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="card full-width-card" id="extra-facts">
+        <h3>Allgemeine Pflegehinweise</h3>
+        <textarea id="pflege-textarea"
+                  placeholder="Hinweise hier eingeben..."
+                  class="pflege-edit"
+                  rows="4"
+                  style="min-height: 40px; resize: none;"></textarea>
+    </div>
+
+    <div class="card">
+        <h3>Datenwerte</h3>
+        <canvas id="chart-data"></canvas>
+    </div>
+    <div class="card" id="facts-box">
+        <h3>Pflanzen Fakten</h3>
+        <p id="plant-facts">Wird geladen...</p>
+    </div>
+    <div class="card">
+        <h3>Sonnenstunden</h3>
+        <canvas id="chart-sun"></canvas>
+    </div>
+    <div class="card">
+        <h3>Temperatur Verlauf</h3>
+        <canvas id="chart-temp"></canvas>
+    </div>
+    <div class="card">
+        <h3>Bodenfeuchtigkeit Verlauf</h3>
+        <canvas id="chart-soil"></canvas>
+    </div>
+    <div class="card">
+        <h3>Luftfeuchtigkeit Verlauf</h3>
+        <canvas id="chart-air"></canvas>
+    </div>
+</div>
+
+<!-- Add Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Add our plant.js file -->
+<script src="{{ url_for('static', filename='plant.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const textarea = document.getElementById('pflege-textarea');
+  if (textarea) {
+    textarea.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.max(this.scrollHeight, 40) + 'px';
+    });
+    textarea.dispatchEvent(new Event('input'));
+  }
+});
+</script>
+{% endblock %}
