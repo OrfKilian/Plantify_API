@@ -144,6 +144,11 @@ body.sidebar-collapsed .sidebar {
     background: #e7e7e7;
     color: #388e3c;
 }
+.sidebar ul li a.active,
+.sidebar-bottom ul li a.active {
+    background: #e0e0e0;
+    color: #388e3c;
+}
 .sidebar ul li .sidebar-text {
     font-size: 18px;
     font-weight: 500;
@@ -160,7 +165,7 @@ body.sidebar-collapsed .sidebar ul li a {
     text-align: center;
 }
 .sidebar-bottom {
-    padding: 20px 10px 10px 10px;
+    padding: 8px 10px 10px 10px;
     font-size: 15px;
 }
 .sidebar-bottom a {
@@ -329,7 +334,8 @@ body.dark-mode .sidebar-bottom ul li a {
 body.dark-mode .sidebar ul li a:hover,
 body.dark-mode .sidebar ul li a.active,
 body.dark-mode .sidebar-bottom a:hover,
-body.dark-mode .sidebar-bottom ul li a:hover {
+body.dark-mode .sidebar-bottom ul li a:hover,
+body.dark-mode .sidebar-bottom ul li a.active {
     background-color: #66bb6a;
     color: #ffffff;
 }
