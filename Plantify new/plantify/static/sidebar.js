@@ -7,13 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
             potList.innerHTML = '';
             plantList.innerHTML = '';
 
-            const pots = data.plants || [];
-            const sortOrder = ["monstera", "strelitzie", "orchidee", "tomate", "orchidee 2", "monstera 2"];
-            pots.sort((a, b) => {
-                const aIdx = sortOrder.indexOf(a.name.toLowerCase());
-                const bIdx = sortOrder.indexOf(b.name.toLowerCase());
-                return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
-            });
+            const pots = data.pots || [];
+            // Reihenfolge wie geliefert anzeigen
             pots.forEach(pot => {
                 const li = document.createElement('li');
                 const link = document.createElement('a');
@@ -23,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 potList.appendChild(li);
             });
 
-            const plants = data.pots || [];
+            const plants = data.plants || [];
 
             plants.forEach(item => {
                 const li = document.createElement('li');

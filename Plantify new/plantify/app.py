@@ -24,10 +24,11 @@ app.register_blueprint(plants_blueprint, url_prefix='/api')
 app.register_blueprint(authorization_blueprint, url_prefix='/api')
 
 # Dummy-Daten für Sidebar
+# Angepasste Töpfe für die Sidebar
 POTS = [
-    {"name": "Keramik"},
-    {"name": "Terrakotta"},
-    {"name": "Kunststoff"}
+    {"name": "Wohnzimmer"},
+    {"name": "Badezimmer"},
+    {"name": "Balkon"}
 ]
 
 PLANTS = [
