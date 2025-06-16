@@ -23,13 +23,19 @@ app.register_blueprint(users_blueprint, url_prefix='/api')
 app.register_blueprint(plants_blueprint, url_prefix='/api')
 app.register_blueprint(authorization_blueprint, url_prefix='/api')
 
-# Dummy Items für Sidebar
-ITEMS = [
+# Dummy-Daten für Sidebar
+POTS = [
+    {"name": "Keramik"},
+    {"name": "Terrakotta"},
+    {"name": "Kunststoff"}
+]
+
+PLANTS = [
     {"name": "Tomate"},
     {"name": "Orchidee"},
     {"name": "Monstera"},
     {"name": "Strelitzie"},
-    {"name": "Orchidee"},
+    {"name": "Orchidee 2"},
 ]
 
 # --- Login-Decorator für geschützte Seiten ---
@@ -66,7 +72,7 @@ def logout():
 # API für Sidebar
 @app.route('/api/items')
 def api_items():
-    return jsonify(ITEMS)
+    return jsonify({"pots": POTS, "plants": PLANTS})
 
 # Item-Detailseite (Platzhalter)
 @app.route('/pflanze/<name>')
