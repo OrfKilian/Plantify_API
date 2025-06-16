@@ -120,9 +120,18 @@ body.sidebar-collapsed .sidebar {
     overflow-y: auto;
     padding: 8px 0 0 0;
 }
+.sidebar h2 {
+    font-size: 15px;
+    margin: 16px 0 8px 10px;
+    color: #666;
+    font-weight: 600;
+}
+.sidebar h2:first-child {
+    margin-top: 8px;
+}
 .sidebar ul {
     list-style: none;
-    padding: 0 0 0 0;
+    padding: 0 10px;
     margin: 0;
 }
 .sidebar ul li {
@@ -160,7 +169,7 @@ body.sidebar-collapsed .sidebar ul li a {
     text-align: center;
 }
 .sidebar-bottom {
-    padding: 20px 10px 10px 10px;
+    padding: 20px 0 10px 0;
     font-size: 15px;
 }
 .sidebar-bottom a {
@@ -200,6 +209,11 @@ body.sidebar-collapsed .sidebar ul li a {
 }
 
 .sidebar-bottom ul li a:hover {
+    background: #e7e7e7;
+    color: #388e3c;
+}
+.sidebar ul li a.active,
+.sidebar-bottom ul li a.active {
     background: #e7e7e7;
     color: #388e3c;
 }
@@ -329,7 +343,8 @@ body.dark-mode .sidebar-bottom ul li a {
 body.dark-mode .sidebar ul li a:hover,
 body.dark-mode .sidebar ul li a.active,
 body.dark-mode .sidebar-bottom a:hover,
-body.dark-mode .sidebar-bottom ul li a:hover {
+body.dark-mode .sidebar-bottom ul li a:hover,
+body.dark-mode .sidebar-bottom ul li a.active {
     background-color: #66bb6a;
     color: #ffffff;
 }

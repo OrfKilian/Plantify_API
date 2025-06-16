@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const link = document.createElement('a');
                 link.href = '#';
                 link.innerHTML = `🏺 <span class="sidebar-text">${pot.name}</span>`;
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.sidebar a.active').forEach(el => el.classList.remove('active'));
+                    link.classList.add('active');
+                });
                 li.appendChild(link);
                 potList.appendChild(li);
             });
@@ -32,6 +37,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const link = document.createElement('a');
                 link.href = `/pflanze/${item.name.toLowerCase().replace(/\s+/g, '-')}`;
                 link.innerHTML = `🪴 <span class="sidebar-text">${item.name}</span>`;
+                link.addEventListener('click', function () {
+                    document.querySelectorAll('.sidebar a.active').forEach(el => el.classList.remove('active'));
+                    link.classList.add('active');
+                });
                 li.appendChild(link);
                 plantList.appendChild(li);
             });
