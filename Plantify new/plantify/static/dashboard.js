@@ -1,7 +1,8 @@
 const API_BASE = '/api';
 const ENDPOINTS = {
     today: `${API_BASE}/all-today`,
-    sunlight: `${API_BASE}/sunlight-30days`
+    sunlight: `${API_BASE}/sunlight-30days`,
+    latest: `${API_BASE}/latest-value`
 };
 
 function createChart(ctx, label) {
@@ -54,5 +55,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) {
         console.error('Fehler beim Laden der Sonnenstunden', e);
+    }
+
+    // Ist-Werte für Pflegehinweise laden
+    const rows = document.querySelectorAll('#care-guidelines tbody tr');
+    for (const row of rows) {
+        const id = row.dataset.potId;
+        if (!id) continue;
+        try {
+            const resp = await fetch(`${ENDPOINTS.latest}?pot_id=${id}`);
+            const data = await resp.json();
+            row.querySelector('.val-temp').textContent = data.temperature.toFixed(1);
+            row.querySelector('.val-air').textContent = data.air_humidity.toFixed(1);
+            row.querySelector('.val-soil').textContent = data.ground_humidity.toFixed(1);
+        } catch (e) {
+            console.error('Fehler beim Laden der Ist-Werte', e);
+        }
     }
 });

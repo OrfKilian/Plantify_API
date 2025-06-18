@@ -240,6 +240,23 @@ body.sidebar-collapsed .content {
     min-height: unset;
     padding-bottom: 20px;
 }
+/* Pflegehinweise Tabelle */
+#care-guidelines table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+#care-guidelines th, #care-guidelines td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+}
+#care-guidelines th {
+    background-color: #f0f0f0;
+    text-align: left;
+}
+#care-guidelines td:nth-child(n+2) {
+    text-align: center;
+}
 canvas {
     max-width: 100%;
 }
