@@ -7,11 +7,21 @@
 <div class="dashboard">
     <div class="card full-width-card" id="extra-facts">
         <h3>Allgemeine Pflegehinweise</h3>
-        <textarea id="pflege-textarea"
-                  placeholder="Hinweise hier eingeben..."
-                  class="pflege-edit"
-                  rows="4"
-                  style="min-height: 40px; resize: none;"></textarea>
+        <div>
+            <label for="target-temperature">Temperatur (°C)</label>
+            <input type="number" id="target-temperature" class="pflege-edit"
+                   value="{{ plant.target_temperature }}">
+        </div>
+        <div>
+            <label for="target-air-humidity">Luftfeuchtigkeit (%)</label>
+            <input type="number" id="target-air-humidity" class="pflege-edit"
+                   value="{{ plant.target_air_humidity }}">
+        </div>
+        <div>
+            <label for="target-ground-humidity">Bodenfeuchtigkeit (%)</label>
+            <input type="number" id="target-ground-humidity" class="pflege-edit"
+                   value="{{ plant.target_ground_humidity }}">
+        </div>
     </div>
 
     <div class="card">
@@ -40,24 +50,24 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const textarea = document.getElementById('pflege-textarea');
-  if (textarea) {
-    textarea.addEventListener('input', function () {
-      this.style.height = 'auto';
-      this.style.height = Math.max(this.scrollHeight, 40) + 'px';
-    });
-    textarea.dispatchEvent(new Event('input'));
-  }
-
   const saveBtn = document.getElementById('save-facts-btn');
   if (saveBtn) {
     saveBtn.addEventListener('click', async function () {
       const facts = document.getElementById('facts-textarea').value;
       const room = document.getElementById('room-select').value;
+      const targetTemperature = document.getElementById('target-temperature').value;
+      const targetAirHumidity = document.getElementById('target-air-humidity').value;
+      const targetGroundHumidity = document.getElementById('target-ground-humidity').value;
       await fetch('/api/plants/{{ plant.id }}', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({facts: facts, room: room})
+        body: JSON.stringify({
+          facts: facts,
+          room: room,
+          target_temperature: targetTemperature,
+          target_air_humidity: targetAirHumidity,
+          target_ground_humidity: targetGroundHumidity
+        })
       });
       alert('Gespeichert');
     });
