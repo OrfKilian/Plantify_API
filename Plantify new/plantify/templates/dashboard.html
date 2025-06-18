@@ -7,17 +7,26 @@
 <div class="dashboard">
     <div class="card full-width-card" id="care-guidelines">
         <h3>Allgemeine Pflegehinweise</h3>
-        <ul>
-        {% for plant in plants %}
-            <li>
-                {{ plant.name }}:
-                {{ plant.target_temperature }}&deg;C,
-                {{ plant.target_air_humidity }}%,
-                {{ plant.target_ground_humidity }}%
-                {% if plant.facts %}- {{ plant.facts }}{% endif %}
-            </li>
-        {% endfor %}
-        </ul>
+        <table class="care-table">
+            <thead>
+                <tr>
+                    <th>Pflanze</th>
+                    <th>Temperatur (Ist/Soll)</th>
+                    <th>Luftfeuchtigkeit (Ist/Soll)</th>
+                    <th>Bodenfeuchtigkeit (Ist/Soll)</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for plant in plants %}
+                <tr data-pot-id="{{ plant.id }}">
+                    <td>{{ plant.name }}</td>
+                    <td><span class="val-temp">--</span> / {{ plant.target_temperature }}</td>
+                    <td><span class="val-air">--</span> / {{ plant.target_air_humidity }}</td>
+                    <td><span class="val-soil">--</span> / {{ plant.target_ground_humidity }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <div class="card charts-card">
