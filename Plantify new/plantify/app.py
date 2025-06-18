@@ -31,11 +31,51 @@ ROOMS = [
 ]
 
 PLANTS = [
-    {"id": 1, "name": "Tomate", "facts": "", "room": None},
-    {"id": 2, "name": "Orchidee", "facts": "", "room": None},
-    {"id": 3, "name": "Monstera", "facts": "", "room": None},
-    {"id": 4, "name": "Strelitzie", "facts": "", "room": None},
-    {"id": 5, "name": "Orchidee 2", "facts": "", "room": None},
+    {
+        "id": 1,
+        "name": "Tomate",
+        "facts": "",
+        "room": None,
+        "target_temperature": 22,
+        "target_air_humidity": 50,
+        "target_ground_humidity": 40,
+    },
+    {
+        "id": 2,
+        "name": "Orchidee",
+        "facts": "",
+        "room": None,
+        "target_temperature": 22,
+        "target_air_humidity": 50,
+        "target_ground_humidity": 40,
+    },
+    {
+        "id": 3,
+        "name": "Monstera",
+        "facts": "",
+        "room": None,
+        "target_temperature": 22,
+        "target_air_humidity": 50,
+        "target_ground_humidity": 40,
+    },
+    {
+        "id": 4,
+        "name": "Strelitzie",
+        "facts": "",
+        "room": None,
+        "target_temperature": 22,
+        "target_air_humidity": 50,
+        "target_ground_humidity": 40,
+    },
+    {
+        "id": 5,
+        "name": "Orchidee 2",
+        "facts": "",
+        "room": None,
+        "target_temperature": 22,
+        "target_air_humidity": 50,
+        "target_ground_humidity": 40,
+    },
 ]
 
 def slugify(value: str) -> str:
@@ -86,6 +126,9 @@ def api_plant(plant_id):
         data = request.get_json() or {}
         plant['facts'] = data.get('facts', plant['facts'])
         plant['room'] = data.get('room', plant['room'])
+        plant['target_temperature'] = data.get('target_temperature', plant['target_temperature'])
+        plant['target_air_humidity'] = data.get('target_air_humidity', plant['target_air_humidity'])
+        plant['target_ground_humidity'] = data.get('target_ground_humidity', plant['target_ground_humidity'])
     return jsonify(plant)
 
 @app.route('/dashboard/<slug>')
