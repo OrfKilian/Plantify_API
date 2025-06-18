@@ -4,12 +4,38 @@
 {% block page_title %}Dashboard - {{ room }}{% endblock %}
 
 {% block content %}
-<h2>Pflanzen im {{ room }}</h2>
-<ul>
-{% for plant in plants %}
-  <li>{{ plant.name }}</li>
-{% else %}
-  <li>Keine Pflanzen zugeordnet.</li>
-{% endfor %}
-</ul>
+<div class="dashboard">
+    <div class="card full-width-card" id="care-guidelines">
+        <h3>Allgemeine Pflegehinweise</h3>
+        <textarea class="pflege-edit" rows="4" placeholder="Hinweise hier eingeben..."></textarea>
+    </div>
+
+    <div class="card charts-card">
+        <div class="chart-container">
+            <h3>Sonnenstunden</h3>
+            <canvas id="chart-sun"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3>Temperatur Verlauf</h3>
+            <canvas id="chart-temp"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3>Bodenfeuchtigkeit Verlauf</h3>
+            <canvas id="chart-soil"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3>Luftfeuchtigkeit Verlauf</h3>
+            <canvas id="chart-air"></canvas>
+        </div>
+    </div>
+
+    <div class="card facts-card" id="facts-box">
+        <h3>Pflanzen Fakten</h3>
+        <textarea class="pflege-edit" rows="8" placeholder="Fakten hier eingeben..."></textarea>
+    </div>
+</div>
+
+<!-- Chart.js für Diagramme -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='plant.js') }}"></script>
 {% endblock %}

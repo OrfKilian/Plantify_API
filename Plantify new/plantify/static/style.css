@@ -238,10 +238,29 @@ body.sidebar-collapsed .content {
 .full-width-card {
     grid-column: 1 / -1;
     min-height: unset;
-    padding-bottom: 20px;   
+    padding-bottom: 20px;
 }
 canvas {
     max-width: 100%;
+}
+
+/* Charts card layout */
+.charts-card {
+    grid-column: 1 / span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.facts-card {
+    grid-column: 3;
+    grid-row: span 2;
 }
 
 /* Toggle-Switch (Light/Dark Mode) */
