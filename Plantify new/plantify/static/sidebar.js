@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
             pots.forEach(pot => {
                 const li = document.createElement('li');
                 const link = document.createElement('a');
-                link.href = '#';
+                link.href = '/';
                 link.innerHTML = `🏺 <span class="sidebar-text">${pot.name}</span>`;
                 li.appendChild(link);
                 potList.appendChild(li);
