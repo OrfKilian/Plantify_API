@@ -2,9 +2,7 @@
 const API_BASE = '/api';
 const ENDPOINTS = {
     latestValue: `${API_BASE}/latest-value`,
-    allToday: `${API_BASE}/all-today`,
-    sunlight30Days: `${API_BASE}/sunlight-30days`,
-    averageMonth: `${API_BASE}/average-month`
+    allToday: `${API_BASE}/all-today`
 };
 
 // Chart configurations
@@ -19,63 +17,6 @@ const chartConfigs = {
                 }
             }
         }
-    },
-    sun: {
-        type: 'bar',
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Sonnenstunden'
-                    }
-                }
-            }
-        }
-    },
-    temp: {
-        type: 'line',
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Temperatur (°C)'
-                    }
-                }
-            }
-        }
-    },
-    soil: {
-        type: 'line',
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Bodenfeuchtigkeit (%)'
-                    }
-                }
-            }
-        }
-    },
-    air: {
-        type: 'line',
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Luftfeuchtigkeit (%)'
-                    }
-                }
-            }
-        }
     }
 };
 
@@ -83,11 +24,7 @@ const chartConfigs = {
 const charts = {};
 function initializeCharts() {
     const chartElements = {
-        data: document.getElementById('chart-data'),
-        sun: document.getElementById('chart-sun'),
-        temp: document.getElementById('chart-temp'),
-        soil: document.getElementById('chart-soil'),
-        air: document.getElementById('chart-air')
+        data: document.getElementById('chart-data')
     };
 
     for (const [key, element] of Object.entries(chartElements)) {
@@ -167,36 +104,6 @@ function updateChartsRandom() {
     // Datenwerte: average of the three metrics
     const avgData = ((lastData.temperature - 18) / 10 + lastData.ground_humidity / 100 + lastData.air_humidity / 100) / 3 * 100;
 
-    // Update temperature chart
-    if (charts.temp) {
-        charts.temp.data.labels.push(label);
-        charts.temp.data.datasets[0].data.push(lastData.temperature);
-        if (charts.temp.data.labels.length > 10) {
-            charts.temp.data.labels.shift();
-            charts.temp.data.datasets[0].data.shift();
-        }
-        charts.temp.update();
-    }
-    // Update soil chart
-    if (charts.soil) {
-        charts.soil.data.labels.push(label);
-        charts.soil.data.datasets[0].data.push(lastData.ground_humidity);
-        if (charts.soil.data.labels.length > 10) {
-            charts.soil.data.labels.shift();
-            charts.soil.data.datasets[0].data.shift();
-        }
-        charts.soil.update();
-    }
-    // Update air chart
-    if (charts.air) {
-        charts.air.data.labels.push(label);
-        charts.air.data.datasets[0].data.push(lastData.air_humidity);
-        if (charts.air.data.labels.length > 10) {
-            charts.air.data.labels.shift();
-            charts.air.data.datasets[0].data.shift();
-        }
-        charts.air.update();
-    }
     // Update data chart (average metric)
     if (charts.data) {
         charts.data.data.labels.push(label);
