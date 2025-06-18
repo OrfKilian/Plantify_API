@@ -7,7 +7,13 @@
 <div class="dashboard">
     <div class="card full-width-card" id="care-guidelines">
         <h3>Allgemeine Pflegehinweise</h3>
-        <textarea class="pflege-edit" rows="4" placeholder="Hinweise hier eingeben..."></textarea>
+        <ul>
+        {% for plant in plants %}
+            {% if plant.facts %}
+            <li>{{ plant.name }}: {{ plant.facts }}</li>
+            {% endif %}
+        {% endfor %}
+        </ul>
     </div>
 
     <div class="card charts-card">
@@ -31,7 +37,13 @@
 
     <div class="card facts-card" id="facts-box">
         <h3>Pflanzen Fakten</h3>
-        <textarea class="pflege-edit" rows="8" placeholder="Fakten hier eingeben..."></textarea>
+        <ul>
+        {% for plant in plants %}
+            {% if plant.facts %}
+            <li>{{ plant.name }}: {{ plant.facts }}</li>
+            {% endif %}
+        {% endfor %}
+        </ul>
     </div>
 </div>
 
