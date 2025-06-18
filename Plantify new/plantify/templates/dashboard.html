@@ -9,9 +9,13 @@
         <h3>Allgemeine Pflegehinweise</h3>
         <ul>
         {% for plant in plants %}
-            {% if plant.facts %}
-            <li>{{ plant.name }}: {{ plant.facts }}</li>
-            {% endif %}
+            <li>
+                {{ plant.name }}:
+                {{ plant.target_temperature }}&deg;C,
+                {{ plant.target_air_humidity }}%,
+                {{ plant.target_ground_humidity }}%
+                {% if plant.facts %}- {{ plant.facts }}{% endif %}
+            </li>
         {% endfor %}
         </ul>
     </div>
