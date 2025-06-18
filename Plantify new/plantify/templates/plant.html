@@ -20,7 +20,16 @@
     </div>
     <div class="card" id="facts-box">
         <h3>Pflanzen Fakten</h3>
-        <p id="plant-facts">Wird geladen...</p>
+        <textarea id="facts-textarea" class="pflege-edit" rows="3" placeholder="Fakten hier eingeben...">{{ plant.facts }}</textarea>
+        <div style="margin-top:10px;">
+            <label for="room-select">Zimmer:</label>
+            <select id="room-select" class="pflege-edit" style="height:auto;">
+                {% for room in rooms %}
+                <option value="{{ room.name }}" {% if room.name == plant.room %}selected{% endif %}>{{ room.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button id="save-facts-btn" class="pflege-edit" style="margin-top:10px;">Speichern</button>
     </div>
     <div class="card">
         <h3>Sonnenstunden</h3>
@@ -54,6 +63,20 @@ document.addEventListener('DOMContentLoaded', function () {
       this.style.height = Math.max(this.scrollHeight, 40) + 'px';
     });
     textarea.dispatchEvent(new Event('input'));
+  }
+
+  const saveBtn = document.getElementById('save-facts-btn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async function () {
+      const facts = document.getElementById('facts-textarea').value;
+      const room = document.getElementById('room-select').value;
+      await fetch('/api/plants/{{ plant.id }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({facts: facts, room: room})
+      });
+      alert('Gespeichert');
+    });
   }
 });
 </script>

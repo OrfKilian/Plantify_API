@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ room }}{% endblock %}
+{% block page_title %}Dashboard - {{ room }}{% endblock %}
+
+{% block content %}
+<h2>Pflanzen im {{ room }}</h2>
+<ul>
+{% for plant in plants %}
+  <li>{{ plant.name }}</li>
+{% else %}
+  <li>Keine Pflanzen zugeordnet.</li>
+{% endfor %}
+</ul>
+{% endblock %}
