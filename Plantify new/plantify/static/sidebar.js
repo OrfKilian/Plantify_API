@@ -7,24 +7,24 @@ document.addEventListener('DOMContentLoaded', function () {
             potList.innerHTML = '';
             plantList.innerHTML = '';
 
-            const pots = data.plants || [];
-            // Reihenfolge wie geliefert anzeigen
-            pots.forEach(pot => {
+            const slugify = str => str.toLowerCase().replace(/\s+/g, '-');
+
+            const rooms = data.rooms || [];
+            rooms.forEach(room => {
                 const li = document.createElement('li');
                 const link = document.createElement('a');
-                link.href = `/pflanze/${pot.name.toLowerCase().replace(/\s+/g, '-')}`;
-                link.innerHTML = `🪴 <span class="sidebar-text">${pot.name}</span>`;
+                link.href = `/dashboard/${slugify(room.name)}`;
+                link.innerHTML = `🏠 <span class="sidebar-text">${room.name}</span>`;
                 li.appendChild(link);
                 potList.appendChild(li);
             });
 
-            const plants = data.pots || [];
-
-            plants.forEach(item => {
+            const plants = data.plants || [];
+            plants.forEach(plant => {
                 const li = document.createElement('li');
                 const link = document.createElement('a');
-                link.href = '#';
-                link.innerHTML = `🏺 <span class="sidebar-text">${item.name}</span>`;
+                link.href = `/pflanze/${slugify(plant.name)}`;
+                link.innerHTML = `🪴 <span class="sidebar-text">${plant.name}</span>`;
                 li.appendChild(link);
                 plantList.appendChild(li);
             });

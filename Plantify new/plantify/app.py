@@ -23,21 +23,23 @@ app.register_blueprint(users_blueprint, url_prefix='/api')
 app.register_blueprint(plants_blueprint, url_prefix='/api')
 app.register_blueprint(authorization_blueprint, url_prefix='/api')
 
-# Dummy-Daten für Sidebar
-# Angepasste Töpfe für die Sidebar
-POTS = [
+# Dummy-Daten für Dashboard und Pflanzen
+ROOMS = [
     {"name": "Wohnzimmer"},
     {"name": "Badezimmer"},
     {"name": "Balkon"}
 ]
 
 PLANTS = [
-    {"name": "Tomate"},
-    {"name": "Orchidee"},
-    {"name": "Monstera"},
-    {"name": "Strelitzie"},
-    {"name": "Orchidee 2"},
+    {"id": 1, "name": "Tomate", "facts": "", "room": None},
+    {"id": 2, "name": "Orchidee", "facts": "", "room": None},
+    {"id": 3, "name": "Monstera", "facts": "", "room": None},
+    {"id": 4, "name": "Strelitzie", "facts": "", "room": None},
+    {"id": 5, "name": "Orchidee 2", "facts": "", "room": None},
 ]
+
+def slugify(value: str) -> str:
+    return value.lower().replace(" ", "-")
 
 # --- Login-Decorator für geschützte Seiten ---
 def login_required(f):
@@ -70,17 +72,40 @@ def logout():
     session.clear()
     return redirect('/login')  # Nach dem Logout zur Login-Seite weiterleiten
 
-# API für Sidebar
+# API für Sidebar und Dashboard
 @app.route('/api/items')
 def api_items():
-    return jsonify({"pots": POTS, "plants": PLANTS})
+    return jsonify({"rooms": ROOMS, "plants": PLANTS})
 
-# Item-Detailseite (Platzhalter)
-@app.route('/pflanze/<name>')
+@app.route('/api/plants/<int:plant_id>', methods=['GET', 'POST'])
+def api_plant(plant_id):
+    plant = next((p for p in PLANTS if p["id"] == plant_id), None)
+    if not plant:
+        return jsonify({"error": "not found"}), 404
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        plant['facts'] = data.get('facts', plant['facts'])
+        plant['room'] = data.get('room', plant['room'])
+    return jsonify(plant)
+
+@app.route('/dashboard/<slug>')
 @login_required
-def plant_detail(name):
-    # Dummy-Werte für Ansicht
-    return render_template('plant.html', trivial=name.title(), botanisch=name.title())
+def dashboard(slug):
+    room = next((r for r in ROOMS if slugify(r['name']) == slug), None)
+    if not room:
+        return "Zimmer nicht gefunden", 404
+    plants = [p for p in PLANTS if p.get('room') == room['name']]
+    return render_template('dashboard.html', room=room['name'], plants=plants)
+
+# Plantendetail und Bearbeitung
+@app.route('/pflanze/<slug>')
+@login_required
+def plant_detail(slug):
+    plant = next((p for p in PLANTS if slugify(p['name']) == slug), None)
+    if not plant:
+        return "Pflanze nicht gefunden", 404
+    return render_template('plant.html', plant=plant, rooms=ROOMS,
+                           trivial=plant['name'], botanisch=plant['name'])
 
 # Einstellungen
 @app.route('/settings')
