@@ -5,6 +5,11 @@
 
 {% block content %}
 <div class="dashboard">
+    <div class="card full-width-card" id="room-edit-box">
+        <label for="room-name">Zimmername:</label>
+        <input type="text" id="room-name" class="pflege-edit" value="{{ room }}">
+        <button id="save-room-btn" class="pflege-edit">Speichern</button>
+    </div>
     <div class="card full-width-card" id="care-guidelines">
         <h3>Schnellübersicht</h3>
         <table class="care-table">
@@ -64,4 +69,26 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='plant.js') }}"></script>
 <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const saveRoomBtn = document.getElementById('save-room-btn');
+    if (saveRoomBtn) {
+        saveRoomBtn.addEventListener('click', async function () {
+            const name = document.getElementById('room-name').value;
+            const slug = '{{ room_slug }}';
+            const newSlug = name.toLowerCase().replace(/\s+/g, '-');
+            await fetch('/api/rooms/' + slug, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            if (newSlug !== slug) {
+                window.location.href = '/dashboard/' + newSlug;
+            } else {
+                alert('Zimmername gespeichert');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

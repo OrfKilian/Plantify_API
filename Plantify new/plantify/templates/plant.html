@@ -30,6 +30,10 @@
     </div>
     <div class="card" id="facts-box">
         <h3>Pflanzen Fakten</h3>
+        <div>
+            <label for="plant-name">Name:</label>
+            <input type="text" id="plant-name" class="pflege-edit" value="{{ plant.name }}">
+        </div>
         <textarea id="facts-textarea" class="pflege-edit" rows="3" placeholder="Fakten hier eingeben...">{{ plant.facts }}</textarea>
         <div style="margin-top:10px;">
             <label for="room-select">Zimmer:</label>
@@ -55,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (saveBtn) {
     saveBtn.addEventListener('click', async function () {
       const facts = document.getElementById('facts-textarea').value;
+      const name = document.getElementById('plant-name').value;
       const roomSelect = document.getElementById('room-select');
       const room = roomSelect.value || null;
       const targetTemperature = document.getElementById('target-temperature').value;
@@ -65,13 +70,20 @@ document.addEventListener('DOMContentLoaded', function () {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           facts: facts,
+          name: name,
           room: room,
           target_temperature: targetTemperature,
           target_air_humidity: targetAirHumidity,
           target_ground_humidity: targetGroundHumidity
         })
       });
-      alert('Gespeichert');
+      const newSlug = name.toLowerCase().replace(/\s+/g, '-') + '-{{ plant.id }}';
+      const currentSlug = window.location.pathname.split('/').pop();
+      if (newSlug !== currentSlug) {
+        window.location.href = '/pflanze/' + newSlug;
+      } else {
+        alert('Gespeichert');
+      }
     });
   }
 });

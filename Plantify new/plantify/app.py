@@ -129,6 +129,22 @@ def logout():
 def api_items():
     return jsonify({"rooms": ROOMS, "plants": PLANTS})
 
+# Endpoint to update room names
+@app.route('/api/rooms/<slug>', methods=['POST'])
+def update_room(slug):
+    room = next((r for r in ROOMS if slugify(r['name']) == slug), None)
+    if not room:
+        return jsonify({"error": "not found"}), 404
+    data = request.get_json() or {}
+    new_name = data.get('name')
+    if new_name:
+        old_name = room['name']
+        room['name'] = new_name
+        for plant in PLANTS:
+            if plant.get('room') == old_name:
+                plant['room'] = new_name
+    return jsonify(room)
+
 @app.route('/api/plants/<int:plant_id>', methods=['GET', 'POST'])
 def api_plant(plant_id):
     plant = next((p for p in PLANTS if p["id"] == plant_id), None)
@@ -136,6 +152,8 @@ def api_plant(plant_id):
         return jsonify({"error": "not found"}), 404
     if request.method == 'POST':
         data = request.get_json() or {}
+        if 'name' in data and data['name']:
+            plant['name'] = data['name']
         plant['facts'] = data.get('facts', plant['facts'])
         room_val = data.get('room', plant['room'])
         plant['room'] = room_val if room_val else None
@@ -160,7 +178,7 @@ def dashboard(slug):
     if not room:
         return "Zimmer nicht gefunden", 404
     plants = [p for p in PLANTS if p.get('room') == room['name']]
-    return render_template('dashboard.html', room=room['name'], plants=plants)
+    return render_template('dashboard.html', room=room['name'], room_slug=slug, plants=plants)
 
 # Plantendetail und Bearbeitung
 @app.route('/pflanze/<slug>')
