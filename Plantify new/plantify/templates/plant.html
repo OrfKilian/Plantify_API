@@ -42,6 +42,11 @@
         </div>
         <button id="save-facts-btn" class="pflege-edit" style="margin-top:10px;">Speichern</button>
     </div>
+
+    <div class="card full-width-card">
+        <h3>Temperatur Verlauf</h3>
+        <canvas id="chart-temp"></canvas>
+    </div>
 </div>
 
 <script>
@@ -80,4 +85,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='temperature_chart.js') }}"></script>
 {% endblock %}
