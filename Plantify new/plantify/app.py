@@ -16,11 +16,15 @@ USER_CREDENTIALS = {
 }
 
 # Datenbankkonfiguration für die SmartPlant-API
+# Die Einstellungen können über Umgebungsvariablen überschrieben werden, damit
+# sich die Anwendung leichter in verschiedenen Umgebungen betreiben lässt.
+import os
+
 app.config['DB_CONFIG'] = {
-    "host": "192.168.178.162",
-    "user": "admin",
-    "password": "thws2025",
-    "database": "smartplantpot",
+    "host": os.getenv("DB_HOST", "192.168.178.162"),
+    "user": os.getenv("DB_USER", "admin"),
+    "password": os.getenv("DB_PASSWORD", "thws2025"),
+    "database": os.getenv("DB_NAME", "smartplantpot"),
 }
 
 # SmartPlant-API Blueprints einbinden
