@@ -9,6 +9,12 @@ from smartplant_api.authorization import authorization_blueprint
 app = Flask(__name__)
 app.secret_key = 'super-geheim'
 
+# Simple credential storage for demonstration purposes
+USER_CREDENTIALS = {
+    'email': 'test@example.com',
+    'password': 'test123'
+}
+
 # Datenbankkonfiguration für die SmartPlant-API
 app.config['DB_CONFIG'] = {
     "host": "192.168.178.162",
@@ -106,7 +112,7 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        if email == 'test@example.com' and password == 'test123':
+        if email == USER_CREDENTIALS['email'] and password == USER_CREDENTIALS['password']:
             session['user_id'] = email
             next_page = request.args.get('next')
             return redirect(next_page or url_for('index'))
@@ -176,7 +182,34 @@ def plant_detail(slug):
 @app.route('/settings')
 @login_required
 def settings():
-    return render_template('settings.html')
+    return render_template('settings.html',
+                           msg_pw=request.args.get('msg_pw'),
+                           msg_email=request.args.get('msg_email'))
+
+
+@app.route('/settings/change-email', methods=['POST'])
+@login_required
+def change_email():
+    new_email = request.form.get('new_email')
+    if new_email:
+        USER_CREDENTIALS['email'] = new_email
+        session['user_id'] = new_email
+        return redirect(url_for('settings', msg_email='success'))
+    return redirect(url_for('settings', msg_email='error'))
+
+
+@app.route('/settings/change-password', methods=['POST'])
+@login_required
+def change_password():
+    current_pw = request.form.get('current_password')
+    new_pw = request.form.get('new_password')
+    confirm_pw = request.form.get('confirm_password')
+    if current_pw != USER_CREDENTIALS['password']:
+        return redirect(url_for('settings', msg_pw='wrong'))
+    if not new_pw or new_pw != confirm_pw:
+        return redirect(url_for('settings', msg_pw='mismatch'))
+    USER_CREDENTIALS['password'] = new_pw
+    return redirect(url_for('settings', msg_pw='success'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
