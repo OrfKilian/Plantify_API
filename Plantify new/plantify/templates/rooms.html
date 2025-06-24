@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Zimmer verwalten{% endblock %}
+{% block page_title %}Zimmer verwalten{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="card full-width-card">
+    <h3>Zimmer umbenennen</h3>
+    <ul id="room-list" style="list-style:none;padding:0;">
+      {% for room in rooms %}
+      <li style="display:flex;gap:10px;margin-bottom:10px;">
+        <input type="text" class="pflege-edit room-input" value="{{ room.name }}" data-slug="{{ room.slug }}">
+        <button class="pflege-edit save-room-btn" style="max-width:150px;">Speichern</button>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.save-room-btn').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const input = this.previousElementSibling;
+        const slug = input.dataset.slug;
+        const name = input.value;
+        const newSlug = name.toLowerCase().replace(/\s+/g,'-');
+        await fetch('/api/rooms/'+slug, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({name:name})
+        });
+        input.dataset.slug = newSlug;
+        alert('Zimmername gespeichert');
+      });
+    });
+  });
+</script>
+{% endblock %}

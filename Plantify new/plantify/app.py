@@ -180,6 +180,13 @@ def dashboard(slug):
     plants = [p for p in PLANTS if p.get('room') == room['name']]
     return render_template('dashboard.html', room=room['name'], room_slug=slug, plants=plants)
 
+# Seite zum Umbenennen der Zimmer
+@app.route('/rooms')
+@login_required
+def rooms_page():
+    room_entries = [{'name': r['name'], 'slug': slugify(r['name'])} for r in ROOMS]
+    return render_template('rooms.html', rooms=room_entries)
+
 # Plantendetail und Bearbeitung
 @app.route('/pflanze/<slug>')
 @login_required
