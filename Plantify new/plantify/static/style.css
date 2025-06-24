@@ -280,6 +280,11 @@ canvas {
     grid-row: 2;
 }
 
+/* Ensure plant facts content starts at the top */
+#facts-box {
+    justify-content: flex-start;
+}
+
 /* Toggle-Switch (Light/Dark Mode) */
 .switch {
     position: relative;
