@@ -133,6 +133,19 @@ def logout():
 def api_items():
     return jsonify({"rooms": ROOMS, "plants": PLANTS})
 
+# Endpoint to create a new room
+@app.route('/api/rooms', methods=['POST'])
+def create_room():
+    data = request.get_json() or {}
+    name = data.get('name')
+    if not name:
+        return jsonify({"error": "missing name"}), 400
+    if any(r['name'].lower() == name.lower() for r in ROOMS):
+        return jsonify({"error": "exists"}), 400
+    room = {"name": name}
+    ROOMS.append(room)
+    return jsonify(room), 201
+
 # Endpoint to update room names
 @app.route('/api/rooms/<slug>', methods=['POST'])
 def update_room(slug):
