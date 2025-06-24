@@ -34,6 +34,7 @@
         <div style="margin-top:10px;">
             <label for="room-select">Zimmer:</label>
             <select id="room-select" class="pflege-edit" style="height:auto;">
+                <option value="" {% if not plant.room %}selected{% endif %}>Kein Zimmer</option>
                 {% for room in rooms %}
                 <option value="{{ room.name }}" {% if room.name == plant.room %}selected{% endif %}>{{ room.name }}</option>
                 {% endfor %}
@@ -54,7 +55,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (saveBtn) {
     saveBtn.addEventListener('click', async function () {
       const facts = document.getElementById('facts-textarea').value;
-      const room = document.getElementById('room-select').value;
+      const roomSelect = document.getElementById('room-select');
+      const room = roomSelect.value || null;
       const targetTemperature = document.getElementById('target-temperature').value;
       const targetAirHumidity = document.getElementById('target-air-humidity').value;
       const targetGroundHumidity = document.getElementById('target-ground-humidity').value;

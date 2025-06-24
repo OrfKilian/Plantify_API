@@ -125,11 +125,21 @@ def api_plant(plant_id):
     if request.method == 'POST':
         data = request.get_json() or {}
         plant['facts'] = data.get('facts', plant['facts'])
-        plant['room'] = data.get('room', plant['room'])
+        room_val = data.get('room', plant['room'])
+        plant['room'] = room_val if room_val else None
         plant['target_temperature'] = data.get('target_temperature', plant['target_temperature'])
         plant['target_air_humidity'] = data.get('target_air_humidity', plant['target_air_humidity'])
         plant['target_ground_humidity'] = data.get('target_ground_humidity', plant['target_ground_humidity'])
     return jsonify(plant)
+
+@app.route('/api/plants/<int:plant_id>/room', methods=['DELETE'])
+def remove_plant_room(plant_id):
+    """Remove plant from its assigned room."""
+    plant = next((p for p in PLANTS if p["id"] == plant_id), None)
+    if not plant:
+        return jsonify({"error": "not found"}), 404
+    plant['room'] = None
+    return jsonify({"message": "Pflanze aus Zimmer entfernt", "plant": plant})
 
 @app.route('/dashboard/<slug>')
 @login_required
