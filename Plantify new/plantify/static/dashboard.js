@@ -14,7 +14,12 @@ function createChart(ctx, label) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const potId = new URLSearchParams(window.location.search).get('pot_id') || '1';
+    const params = new URLSearchParams(window.location.search);
+    let potId = params.get('pot_id');
+    if (!potId) {
+        const firstRow = document.querySelector('#care-guidelines tbody tr');
+        potId = firstRow ? firstRow.dataset.potId : '1';
+    }
     const charts = {
         sun: createChart(document.getElementById('chart-sun'), 'Sonnenstunden'),
         temp: createChart(document.getElementById('chart-temp'), 'Temperatur (°C)'),
