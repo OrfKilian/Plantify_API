@@ -234,6 +234,13 @@ def register():
     # Hier kann später Registrierungslogik ergänzt werden
     return render_template('register.html')
 
+# ----- Diagramme Routes -----
+@app.route('/diagramme/temperatur')
+@login_required
+def diagramm_temperatur():
+    """Zeigt den Beispielgraphen für den Temperaturverlauf."""
+    return render_template('diagramme/temperatur_verlauf.html')
+
 @app.route('/debugtest')
 def debugtest():
     return "DEBUG ROUTE OK"
