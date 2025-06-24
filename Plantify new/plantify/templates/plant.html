@@ -24,11 +24,7 @@
         </div>
     </div>
 
-    <div class="card">
-        <h3>Datenwerte</h3>
-        <canvas id="chart-data"></canvas>
-    </div>
-    <div class="card" id="facts-box">
+    <div class="card full-width-card" id="facts-box">
         <h3>Pflanzen Fakten</h3>
         <div>
             <label for="plant-name">Name:</label>
@@ -47,11 +43,6 @@
         <button id="save-facts-btn" class="pflege-edit" style="margin-top:10px;">Speichern</button>
     </div>
 </div>
-
-<!-- Add Chart.js library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Add our plant.js file -->
-<script src="{{ url_for('static', filename='plant.js') }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
