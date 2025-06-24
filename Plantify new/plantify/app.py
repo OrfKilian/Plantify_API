@@ -81,6 +81,12 @@ PLANTS = [
 def slugify(value: str) -> str:
     return value.lower().replace(" ", "-")
 
+# Generate a unique slug for a plant by appending its id to the
+# slugified name. This allows multiple plants with the same name to
+# exist and be addressed individually.
+def plant_slug(plant: dict) -> str:
+    return f"{slugify(plant['name'])}-{plant['id']}"
+
 # --- Login-Decorator für geschützte Seiten ---
 def login_required(f):
     @wraps(f)
@@ -154,7 +160,13 @@ def dashboard(slug):
 @app.route('/pflanze/<slug>')
 @login_required
 def plant_detail(slug):
-    plant = next((p for p in PLANTS if slugify(p['name']) == slug), None)
+    # Slugs are generated as '<name>-<id>' to allow duplicate plant names.
+    plant = None
+    plant_id_part = slug.rsplit('-', 1)[-1]
+    if plant_id_part.isdigit():
+        plant = next((p for p in PLANTS if str(p['id']) == plant_id_part), None)
+    if not plant:  # Fallback for old slugs without id
+        plant = next((p for p in PLANTS if slugify(p['name']) == slug), None)
     if not plant:
         return "Pflanze nicht gefunden", 404
     return render_template('plant.html', plant=plant, rooms=ROOMS,

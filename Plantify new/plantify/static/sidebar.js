@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
             plants.forEach(plant => {
                 const li = document.createElement('li');
                 const link = document.createElement('a');
-                link.href = `/pflanze/${slugify(plant.name)}`;
+                // Include the plant id in the slug so plants with the same name
+                // can be displayed in different rooms.
+                link.href = `/pflanze/${slugify(plant.name)}-${plant.id}`;
                 link.innerHTML = `🪴 <span class="sidebar-text">${plant.name}</span>`;
                 li.appendChild(link);
                 plantList.appendChild(li);
