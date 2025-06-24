@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, send_file
 from functools import wraps
+from pathlib import Path
 
 from smartplant_api.views import views_blueprint
 from smartplant_api.users import users_blueprint
@@ -233,6 +234,14 @@ def change_password():
 def register():
     # Hier kann später Registrierungslogik ergänzt werden
     return render_template('register.html')
+
+# ----- Diagramme Routes -----
+@app.route('/diagramme/temperatur')
+@login_required
+def diagramm_temperatur():
+    """Zeigt den Beispielgraphen für den Temperaturverlauf."""
+    html_path = Path(__file__).resolve().parent / 'templates' / 'diagramme' / 'temperatur_verlauf.html'
+    return send_file(html_path)
 
 @app.route('/debugtest')
 def debugtest():
