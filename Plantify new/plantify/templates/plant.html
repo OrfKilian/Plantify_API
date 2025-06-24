@@ -32,7 +32,7 @@
         <h3>Pflanzen Fakten</h3>
         <div>
             <label for="plant-name">Name:</label>
-            <input type="text" id="plant-name" class="pflege-edit" value="{{ plant.name }}">
+            <input type="text" id="plant-name" class="pflege-edit" placeholder="{{ plant.name }}">
         </div>
         <textarea id="facts-textarea" class="pflege-edit" rows="3" placeholder="Fakten hier eingeben...">{{ plant.facts }}</textarea>
         <div style="margin-top:10px;">
@@ -59,7 +59,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (saveBtn) {
     saveBtn.addEventListener('click', async function () {
       const facts = document.getElementById('facts-textarea').value;
-      const name = document.getElementById('plant-name').value;
+      const nameInput = document.getElementById('plant-name');
+      const name = nameInput.value || nameInput.placeholder;
       const roomSelect = document.getElementById('room-select');
       const room = roomSelect.value || null;
       const targetTemperature = document.getElementById('target-temperature').value;
