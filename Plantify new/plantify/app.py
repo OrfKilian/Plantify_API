@@ -91,12 +91,6 @@ PLANTS = [
 def slugify(value: str) -> str:
     return value.lower().replace(" ", "-")
 
-# Generate a unique slug for a plant by appending its id to the
-# slugified name. This allows multiple plants with the same name to
-# exist and be addressed individually.
-def plant_slug(plant: dict) -> str:
-    return f"{slugify(plant['name'])}-{plant['id']}"
-
 # --- Login-Decorator für geschützte Seiten ---
 def login_required(f):
     @wraps(f)
@@ -258,16 +252,6 @@ def register():
     # Hier kann später Registrierungslogik ergänzt werden
     return render_template('register.html')
 
-# ----- Diagramme Routes -----
-@app.route('/diagramme/temperatur')
-@login_required
-def diagramm_temperatur():
-    """Zeigt den Beispielgraphen für den Temperaturverlauf."""
-    return render_template('diagramme/temperatur_verlauf.html')
-
-@app.route('/debugtest')
-def debugtest():
-    return "DEBUG ROUTE OK"
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
