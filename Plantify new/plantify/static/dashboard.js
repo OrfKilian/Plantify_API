@@ -22,10 +22,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const charts = {
         sun: createChart(document.getElementById('chart-sun'), 'Sonnenstunden'),
-        temp: createChart(document.getElementById('chart-temp'), 'Temperatur (°C)'),
+        temp: null,
         soil: createChart(document.getElementById('chart-soil'), 'Bodenfeuchtigkeit (%)'),
         air: createChart(document.getElementById('chart-air'), 'Luftfeuchtigkeit (%)')
     };
+    const tempCtx = document.getElementById('chart-temp');
+    if (tempCtx) {
+        charts.temp = createChart(tempCtx, 'Temperatur (°C)');
+    }
 
     try {
         const todayResp = await fetch(`${ENDPOINTS.today}?pot_id=${potId}`);
@@ -33,14 +37,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (Array.isArray(todayData)) {
             todayData.forEach(d => {
                 const t = d.created;
-                charts.temp.data.labels.push(t);
+                if (charts.temp) {
+                    charts.temp.data.labels.push(t);
+                    charts.temp.data.datasets[0].data.push(d.temperature);
+                }
                 charts.soil.data.labels.push(t);
                 charts.air.data.labels.push(t);
-                charts.temp.data.datasets[0].data.push(d.temperature);
                 charts.soil.data.datasets[0].data.push(d.ground_humidity);
                 charts.air.data.datasets[0].data.push(d.air_humidity);
             });
-            charts.temp.update();
+            if (charts.temp) charts.temp.update();
             charts.soil.update();
             charts.air.update();
         }
