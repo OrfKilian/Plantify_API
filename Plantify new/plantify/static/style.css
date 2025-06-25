@@ -281,6 +281,11 @@ iframe.plotly-frame {
     justify-content: space-between;
 }
 
+/* Remove gap between chart headings and the charts */
+.chart-container h3 {
+    margin-bottom: 0;
+}
+
 .facts-card {
     grid-column: 3;
     grid-row: 2;
