@@ -1,9 +1,4 @@
-const API_BASE = '/api';
-const ENDPOINTS = {
-    today: `${API_BASE}/all-today`,
-    sunlight: `${API_BASE}/sunlight-30days`,
-    latest: `${API_BASE}/latest-value`
-};
+
 
 // Fallback-Daten wenn die API nicht erreichbar ist
 const DUMMY_MEASUREMENTS = [
@@ -46,7 +41,7 @@ function applyMeasurements(measurements, charts) {
     charts.air.update();
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     let potId = params.get('pot_id');
     if (!potId) {
@@ -64,53 +59,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         charts.temp = createChart(tempCtx, 'Temperatur (°C)');
     }
 
-    try {
-        const todayResp = await fetch(`${ENDPOINTS.today}?pot_id=${potId}`);
-        const todayData = await todayResp.json();
-        if (Array.isArray(todayData)) {
-            applyMeasurements(todayData, charts);
-        }
-    } catch (e) {
-        console.error('Fehler beim Laden der Tagesdaten', e);
-        applyMeasurements(DUMMY_MEASUREMENTS, charts);
-    }
-
-    try {
-        const sunResp = await fetch(`${ENDPOINTS.sunlight}?pot_id=${potId}`);
-        const sunData = await sunResp.json();
-        if (Array.isArray(sunData)) {
-            sunData.forEach(d => {
-                charts.sun.data.labels.push(d.created);
-                charts.sun.data.datasets[0].data.push(d.HoS);
-            });
-            charts.sun.update();
-        }
-    } catch (e) {
-        console.error('Fehler beim Laden der Sonnenstunden', e);
-        DUMMY_MEASUREMENTS.forEach(d => {
-            charts.sun.data.labels.push(d.created);
-            charts.sun.data.datasets[0].data.push(d.HoS);
-        });
-        charts.sun.update();
-    }
+    applyMeasurements(DUMMY_MEASUREMENTS, charts);
+    DUMMY_MEASUREMENTS.forEach(d => {
+        charts.sun.data.labels.push(d.created);
+        charts.sun.data.datasets[0].data.push(d.HoS);
+    });
+    charts.sun.update();
 
     // Ist-Werte für Pflegehinweise laden
     const rows = document.querySelectorAll('#care-guidelines tbody tr');
     for (const row of rows) {
         const id = row.dataset.potId;
         if (!id) continue;
-        try {
-            const resp = await fetch(`${ENDPOINTS.latest}?pot_id=${id}`);
-            const data = await resp.json();
-            row.querySelector('.val-temp').textContent = data.temperature.toFixed(1);
-            row.querySelector('.val-air').textContent = data.air_humidity.toFixed(1);
-            row.querySelector('.val-soil').textContent = data.ground_humidity.toFixed(1);
-        } catch (e) {
-            console.error('Fehler beim Laden der Ist-Werte', e);
-            const d = DUMMY_MEASUREMENTS[DUMMY_MEASUREMENTS.length - 1];
-            row.querySelector('.val-temp').textContent = d.temperature.toFixed(1);
-            row.querySelector('.val-air').textContent = d.air_humidity.toFixed(1);
-            row.querySelector('.val-soil').textContent = d.ground_humidity.toFixed(1);
-        }
+        const d = DUMMY_MEASUREMENTS[DUMMY_MEASUREMENTS.length - 1];
+        row.querySelector('.val-temp').textContent = d.temperature.toFixed(1);
+        row.querySelector('.val-air').textContent = d.air_humidity.toFixed(1);
+        row.querySelector('.val-soil').textContent = d.ground_humidity.toFixed(1);
     }
 });

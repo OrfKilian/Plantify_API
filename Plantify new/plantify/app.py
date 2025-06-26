@@ -1,10 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from functools import wraps
 
-from smartplant_api.views import views_blueprint
-from smartplant_api.users import users_blueprint
-from smartplant_api.plants import plants_blueprint
-from smartplant_api.authorization import authorization_blueprint
 
 app = Flask(__name__)
 app.secret_key = 'super-geheim'
@@ -14,25 +10,6 @@ USER_CREDENTIALS = {
     'email': 'test@example.com',
     'password': 'test123'
 }
-
-# Datenbankkonfiguration für die SmartPlant-API
-# Die Einstellungen können über Umgebungsvariablen überschrieben werden, damit
-# sich die Anwendung leichter in verschiedenen Umgebungen betreiben lässt.
-import os
-
-app.config['DB_CONFIG'] = {
-    "host": os.getenv("DB_HOST", "192.168.178.162"),
-    "user": os.getenv("DB_USER", "admin"),
-    "password": os.getenv("DB_PASSWORD", "thws2025"),
-    "database": os.getenv("DB_NAME", "smartplantpot"),
-}
-
-# SmartPlant-API Blueprints einbinden
-app.register_blueprint(views_blueprint, url_prefix='/api')
-app.register_blueprint(users_blueprint, url_prefix='/api')
-app.register_blueprint(plants_blueprint, url_prefix='/api')
-app.register_blueprint(authorization_blueprint, url_prefix='/api')
-
 # Dummy-Daten für Dashboard und Pflanzen
 ROOMS = [
     {"name": "Wohnzimmer"},
@@ -88,6 +65,10 @@ PLANTS = [
     },
 ]
 
+@app.context_processor
+def inject_sidebar_data():
+    return dict(rooms=ROOMS, plants=PLANTS)
+
 def slugify(value: str) -> str:
     return value.lower().replace(" ", "-")
 
@@ -122,65 +103,6 @@ def logout():
     session.clear()
     return redirect('/login')  # Nach dem Logout zur Login-Seite weiterleiten
 
-# API für Sidebar und Dashboard
-@app.route('/api/items')
-def api_items():
-    return jsonify({"rooms": ROOMS, "plants": PLANTS})
-
-# Endpoint to create a new room
-@app.route('/api/rooms', methods=['POST'])
-def create_room():
-    data = request.get_json() or {}
-    name = data.get('name')
-    if not name:
-        return jsonify({"error": "missing name"}), 400
-    if any(r['name'].lower() == name.lower() for r in ROOMS):
-        return jsonify({"error": "exists"}), 400
-    room = {"name": name}
-    ROOMS.append(room)
-    return jsonify(room), 201
-
-# Endpoint to update room names
-@app.route('/api/rooms/<slug>', methods=['POST'])
-def update_room(slug):
-    room = next((r for r in ROOMS if slugify(r['name']) == slug), None)
-    if not room:
-        return jsonify({"error": "not found"}), 404
-    data = request.get_json() or {}
-    new_name = data.get('name')
-    if new_name:
-        old_name = room['name']
-        room['name'] = new_name
-        for plant in PLANTS:
-            if plant.get('room') == old_name:
-                plant['room'] = new_name
-    return jsonify(room)
-
-@app.route('/api/plants/<int:plant_id>', methods=['GET', 'POST'])
-def api_plant(plant_id):
-    plant = next((p for p in PLANTS if p["id"] == plant_id), None)
-    if not plant:
-        return jsonify({"error": "not found"}), 404
-    if request.method == 'POST':
-        data = request.get_json() or {}
-        if 'name' in data and data['name']:
-            plant['name'] = data['name']
-        plant['facts'] = data.get('facts', plant['facts'])
-        room_val = data.get('room', plant['room'])
-        plant['room'] = room_val if room_val else None
-        plant['target_temperature'] = data.get('target_temperature', plant['target_temperature'])
-        plant['target_air_humidity'] = data.get('target_air_humidity', plant['target_air_humidity'])
-        plant['target_ground_humidity'] = data.get('target_ground_humidity', plant['target_ground_humidity'])
-    return jsonify(plant)
-
-@app.route('/api/plants/<int:plant_id>/room', methods=['DELETE'])
-def remove_plant_room(plant_id):
-    """Remove plant from its assigned room."""
-    plant = next((p for p in PLANTS if p["id"] == plant_id), None)
-    if not plant:
-        return jsonify({"error": "not found"}), 404
-    plant['room'] = None
-    return jsonify({"message": "Pflanze aus Zimmer entfernt", "plant": plant})
 
 @app.route('/dashboard/<slug>')
 @login_required

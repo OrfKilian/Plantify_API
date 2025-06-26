@@ -1,9 +1,3 @@
-// API endpoints
-const API_BASE = '/api';
-const ENDPOINTS = {
-    latestValue: `${API_BASE}/latest-value`,
-    allToday: `${API_BASE}/all-today`
-};
 
 // Chart configurations
 const chartConfigs = {
@@ -45,17 +39,6 @@ function initializeCharts() {
     }
 }
 
-// Fetch data from API
-async function fetchData(endpoint, potId) {
-    try {
-        const response = await fetch(`${endpoint}?pot_id=${potId}`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return null;
-    }
-}
 
 // Generate a new random data point based on the previous value and type
 function getRandomValue(prev, type) {

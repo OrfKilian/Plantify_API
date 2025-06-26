@@ -58,18 +58,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const targetTemperature = document.getElementById('target-temperature').value;
       const targetAirHumidity = document.getElementById('target-air-humidity').value;
       const targetGroundHumidity = document.getElementById('target-ground-humidity').value;
-      await fetch('/api/plants/{{ plant.id }}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          facts: facts,
-          name: name,
-          room: room,
-          target_temperature: targetTemperature,
-          target_air_humidity: targetAirHumidity,
-          target_ground_humidity: targetGroundHumidity
-        })
-      });
+      // API entfernt – Daten werden lokal aktualisiert
+      const data = {
+        facts: facts,
+        name: name,
+        room: room,
+        target_temperature: targetTemperature,
+        target_air_humidity: targetAirHumidity,
+        target_ground_humidity: targetGroundHumidity
+      };
       const newSlug = name.toLowerCase().replace(/\s+/g, '-') + '-{{ plant.id }}';
       const currentSlug = window.location.pathname.split('/').pop();
       if (newSlug !== currentSlug) {
