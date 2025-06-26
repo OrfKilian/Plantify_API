@@ -34,11 +34,7 @@
         const slug = input.dataset.slug;
         const name = input.value;
         const newSlug = slugify(name);
-        await fetch('/api/rooms/'+slug, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({name:name})
-        });
+        // API entfernt – Änderung nur lokal vornehmen
         input.dataset.slug = newSlug;
         alert('Zimmername gespeichert');
       });
@@ -52,17 +48,12 @@
         const input = document.getElementById('new-room-input');
         const name = input.value.trim();
         if(!name) return;
-        const res = await fetch('/api/rooms', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({name:name})
-        });
-        if(res.ok){
-          const slug = slugify(name);
-          const li = document.createElement('li');
-          li.style.display='flex';
-          li.style.gap='10px';
-          li.style.marginBottom='10px';
+        // API entfernt – Zimmer direkt zur Liste hinzufügen
+        const slug = slugify(name);
+        const li = document.createElement('li');
+        li.style.display='flex';
+        li.style.gap='10px';
+        li.style.marginBottom='10px';
           const newInput = document.createElement('input');
           newInput.type='text';
           newInput.className='pflege-edit room-input';
@@ -74,13 +65,10 @@
           newBtn.textContent='Speichern';
           li.appendChild(newInput);
           li.appendChild(newBtn);
-          document.getElementById('room-list').appendChild(li);
-          setupSave(newBtn);
-          input.value='';
-          alert('Zimmer hinzugefügt');
-        } else {
-          alert('Fehler beim Hinzufügen');
-        }
+        document.getElementById('room-list').appendChild(li);
+        setupSave(newBtn);
+        input.value='';
+        alert('Zimmer hinzugefügt');
       });
     }
   });

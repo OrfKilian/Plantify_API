@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Plantify{% endblock %}</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script defer src="/static/sidebar.js"></script>
+    <!-- Sidebar is now rendered server-side -->
 </head>
 <body class="{% if not session.user_id %}auth-layout{% endif %}">
     <div class="topbar">
@@ -31,9 +31,21 @@
     </div>
     <aside class="sidebar">
       <div class="sidebar-scrollable">
-        <ul id="sidebar-pots"></ul>
+        <ul id="sidebar-pots">
+          {% for room in rooms %}
+          <li>
+            <a href="/dashboard/{{ room.name | lower | replace(' ', '-') }}">🏠 <span class="sidebar-text">{{ room.name }}</span></a>
+          </li>
+          {% endfor %}
+        </ul>
         <div class="sidebar-bottom">
-          <ul id="sidebar-plants"></ul>
+          <ul id="sidebar-plants">
+            {% for plant in plants %}
+            <li>
+              <a href="/pflanze/{{ plant.name | lower | replace(' ', '-') }}-{{ plant.id }}">🪴 <span class="sidebar-text">{{ plant.name }}</span></a>
+            </li>
+            {% endfor %}
+          </ul>
         </div>
       </div>
     </aside>
