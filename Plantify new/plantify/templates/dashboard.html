@@ -17,7 +17,7 @@
                 </tr>
             </thead>
             <tbody>
-            {% for plant in plants %}
+            {% for plant in room_plants %}
                 <tr data-pot-id="{{ plant.id }}">
                     <td>{{ plant.name }}</td>
                     <td><span class="val-temp">--</span> / {{ plant.target_temperature }}</td>
@@ -52,7 +52,7 @@
     <div class="card facts-card" id="facts-box">
         <h3>Pflanzen Fakten</h3>
         <ul>
-        {% for plant in plants %}
+        {% for plant in room_plants %}
             {% if plant.facts %}
             <li>{{ plant.name }}: {{ plant.facts }}</li>
             {% endif %}

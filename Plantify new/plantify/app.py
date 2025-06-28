@@ -110,8 +110,9 @@ def dashboard(slug):
     room = next((r for r in ROOMS if slugify(r['name']) == slug), None)
     if not room:
         return "Zimmer nicht gefunden", 404
-    plants = [p for p in PLANTS if p.get('room') == room['name']]
-    return render_template('dashboard.html', room=room['name'], room_slug=slug, plants=plants)
+    room_plants = [p for p in PLANTS if p.get('room') == room['name']]
+    return render_template('dashboard.html', room=room['name'], room_slug=slug,
+                           room_plants=room_plants)
 
 # Seite zum Umbenennen der Zimmer
 @app.route('/rooms')
