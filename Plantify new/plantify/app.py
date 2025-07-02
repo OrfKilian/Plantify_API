@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from functools import wraps
+import bcrypt
 
 
 app = Flask(__name__)
@@ -8,7 +9,8 @@ app.secret_key = 'super-geheim'
 # Simple credential storage for demonstration purposes
 USER_CREDENTIALS = {
     'email': 'test@example.com',
-    'password': 'test123'
+    # Password hash generated at startup
+    'password': bcrypt.hashpw(b'test123', bcrypt.gensalt()).decode('utf-8')
 }
 # Dummy-Daten für Dashboard und Pflanzen
 ROOMS = [
@@ -91,7 +93,8 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        if email == USER_CREDENTIALS['email'] and password == USER_CREDENTIALS['password']:
+        if email == USER_CREDENTIALS['email'] and \
+                bcrypt.checkpw(password.encode('utf-8'), USER_CREDENTIALS['password'].encode('utf-8')):
             session['user_id'] = email
             next_page = request.args.get('next')
             return redirect(next_page or url_for('index'))
@@ -163,11 +166,11 @@ def change_password():
     current_pw = request.form.get('current_password')
     new_pw = request.form.get('new_password')
     confirm_pw = request.form.get('confirm_password')
-    if current_pw != USER_CREDENTIALS['password']:
+    if not bcrypt.checkpw(current_pw.encode('utf-8'), USER_CREDENTIALS['password'].encode('utf-8')):
         return redirect(url_for('settings', msg_pw='wrong'))
     if not new_pw or new_pw != confirm_pw:
         return redirect(url_for('settings', msg_pw='mismatch'))
-    USER_CREDENTIALS['password'] = new_pw
+    USER_CREDENTIALS['password'] = bcrypt.hashpw(new_pw.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     return redirect(url_for('settings', msg_pw='success'))
 
 @app.route('/register', methods=['GET', 'POST'])
