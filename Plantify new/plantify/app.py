@@ -1,14 +1,15 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from functools import wraps
+import bcrypt
 
 
 app = Flask(__name__)
 app.secret_key = 'super-geheim'
 
 # Simple credential storage for demonstration purposes
-USER_CREDENTIALS = {
-    'email': 'test@example.com',
-    'password': 'test123'
+# Mapping of email to hashed password
+USERS = {
+    'test@example.com': bcrypt.hashpw(b'test123', bcrypt.gensalt()).decode('utf-8')
 }
 # Dummy-Daten für Dashboard und Pflanzen
 ROOMS = [
@@ -91,7 +92,8 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        if email == USER_CREDENTIALS['email'] and password == USER_CREDENTIALS['password']:
+        hashed = USERS.get(email)
+        if hashed and bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8')):
             session['user_id'] = email
             next_page = request.args.get('next')
             return redirect(next_page or url_for('index'))
@@ -150,8 +152,9 @@ def settings():
 @login_required
 def change_email():
     new_email = request.form.get('new_email')
-    if new_email:
-        USER_CREDENTIALS['email'] = new_email
+    current_email = session.get('user_id')
+    if new_email and current_email in USERS:
+        USERS[new_email] = USERS.pop(current_email)
         session['user_id'] = new_email
         return redirect(url_for('settings', msg_email='success'))
     return redirect(url_for('settings', msg_email='error'))
@@ -163,16 +166,34 @@ def change_password():
     current_pw = request.form.get('current_password')
     new_pw = request.form.get('new_password')
     confirm_pw = request.form.get('confirm_password')
-    if current_pw != USER_CREDENTIALS['password']:
+    current_email = session.get('user_id')
+    hashed = USERS.get(current_email)
+    if not hashed or not bcrypt.checkpw(current_pw.encode('utf-8'), hashed.encode('utf-8')):
         return redirect(url_for('settings', msg_pw='wrong'))
     if not new_pw or new_pw != confirm_pw:
         return redirect(url_for('settings', msg_pw='mismatch'))
-    USER_CREDENTIALS['password'] = new_pw
+    USERS[current_email] = bcrypt.hashpw(new_pw.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     return redirect(url_for('settings', msg_pw='success'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    # Hier kann später Registrierungslogik ergänzt werden
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm = request.form.get('confirm_password')
+
+        if not email or not password:
+            return render_template('register.html', error='E-Mail und Passwort benötigt!')
+        if password != confirm:
+            return render_template('register.html', error='Passwörter stimmen nicht überein!')
+        if email in USERS:
+            return render_template('register.html', error='E-Mail existiert bereits!')
+
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        USERS[email] = hashed
+        session['user_id'] = email
+        return redirect(url_for('index'))
+
     return render_template('register.html')
 
 
