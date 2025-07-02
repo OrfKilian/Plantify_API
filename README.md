@@ -8,9 +8,3 @@ Plant details can be edited on the plant page. Changes are sent to the new
 `/api/plant/<id>` endpoint which updates the in-memory `PLANTS` list so that the
 "Schnellübersicht" reflects the saved target values after a reload.
 
-## Configuration
-
-Set the `SECRET_KEY` environment variable before starting the Flask app to
-enable secure sessions. During development you can set `FLASK_ENV=development`
-to allow a default key to be used.
-
