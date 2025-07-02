@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, session, url_for, j
 from functools import wraps
 import os
 import bcrypt
-from email_validator import validate_email, EmailNotValidError
 
 
 app = Flask(__name__)
@@ -80,16 +79,6 @@ def inject_sidebar_data():
 
 def slugify(value: str) -> str:
     return value.lower().replace(" ", "-")
-
-def is_valid_email(email: str) -> bool:
-    """Validate an email address using the email-validator package."""
-    if not email:
-        return False
-    try:
-        validate_email(email)
-        return True
-    except EmailNotValidError:
-        return False
 
 # --- Login-Decorator für geschützte Seiten ---
 def login_required(f):
@@ -192,7 +181,7 @@ def settings():
 def change_email():
     new_email = request.form.get('new_email')
     current_email = session.get('user_id')
-    if new_email and is_valid_email(new_email) and current_email in USERS:
+    if new_email and current_email in USERS:
         USERS[new_email] = USERS.pop(current_email)
         session['user_id'] = new_email
         return redirect(url_for('settings', msg_email='success'))
@@ -223,8 +212,6 @@ def register():
 
         if not email or not password:
             return render_template('register.html', error='E-Mail und Passwort benötigt!')
-        if not is_valid_email(email):
-            return render_template('register.html', error='Ungültige E-Mail-Adresse!')
         if password != confirm:
             return render_template('register.html', error='Passwörter stimmen nicht überein!')
         if email in USERS:
