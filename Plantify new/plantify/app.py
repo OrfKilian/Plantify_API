@@ -1,11 +1,18 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from functools import wraps
+import os
 import bcrypt
 from email_validator import validate_email, EmailNotValidError
 
 
 app = Flask(__name__)
-app.secret_key = 'super-geheim'
+secret_key = os.environ.get('SECRET_KEY')
+if not secret_key:
+    if os.environ.get('FLASK_ENV') == 'development':
+        secret_key = 'dev-secret'
+    else:
+        raise RuntimeError('SECRET_KEY environment variable not set')
+app.secret_key = secret_key
 
 # Simple credential storage for demonstration purposes
 # Mapping of email to hashed password
