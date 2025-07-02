@@ -139,6 +139,27 @@ def plant_detail(slug):
     return render_template('plant.html', plant=plant, rooms=ROOMS,
                            trivial=plant['name'], botanisch=plant['name'])
 
+@app.route('/api/plant/<int:plant_id>', methods=['POST'])
+@login_required
+def update_plant_api(plant_id: int):
+    """Update plant data in the in-memory list."""
+    data = request.get_json(silent=True) or {}
+    plant = next((p for p in PLANTS if p['id'] == plant_id), None)
+    if not plant:
+        return jsonify({'error': 'Plant not found'}), 404
+    allowed = {
+        'facts',
+        'name',
+        'room',
+        'target_temperature',
+        'target_air_humidity',
+        'target_ground_humidity',
+    }
+    for key in allowed:
+        if key in data:
+            plant[key] = data[key]
+    return jsonify({'success': True})
+
 # Einstellungen
 @app.route('/settings')
 @login_required
