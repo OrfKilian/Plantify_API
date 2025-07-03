@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, Response
 from functools import wraps
 import os
 import bcrypt
+import requests
 from email_validator import validate_email, EmailNotValidError
 
 
@@ -13,6 +14,9 @@ if not secret_key:
     else:
         raise RuntimeError('SECRET_KEY environment variable not set')
 app.secret_key = secret_key
+
+# Base URL for the external Smartplant API used for graph rendering
+API_BASE = os.environ.get('SMARTPLANT_API_BASE', 'http://localhost:5001')
 
 # Simple credential storage for demonstration purposes
 # Mapping of email to hashed password
@@ -177,6 +181,19 @@ def update_plant_api(plant_id: int):
         if key in data:
             plant[key] = data[key]
     return jsonify({'success': True})
+
+
+# Proxy endpoint to retrieve plotly graphs from the external API
+@app.route('/plots/<plot_name>')
+@login_required
+def proxy_plot(plot_name: str):
+    pot_id = request.args.get('pot_id', 1)
+    try:
+        resp = requests.get(f"{API_BASE}/plots/{plot_name}", params={'pot_id': pot_id}, timeout=5)
+        resp.raise_for_status()
+    except requests.RequestException:
+        return "Fehler beim Laden des Diagramms", 502
+    return Response(resp.content, content_type=resp.headers.get('Content-Type', 'text/html'))
 
 # Einstellungen
 @app.route('/settings')
