@@ -32,19 +32,20 @@
     <div class="card charts-card">
         <div class="chart-container">
             <h3>Sonnenstunden</h3>
-            <iframe id="frame-sun" class="plotly-frame"></iframe>
+            <canvas id="chart-sun"></canvas>
         </div>
         <div class="chart-container">
             <h3>Temperatur Verlauf</h3>
-            <iframe id="frame-temp" class="plotly-frame"></iframe>
+            <!-- Chart für Temperatur Verlauf -->
+            <canvas id="chart-temp"></canvas>
         </div>
         <div class="chart-container">
             <h3>Bodenfeuchtigkeit Verlauf</h3>
-            <iframe id="frame-soil" class="plotly-frame"></iframe>
+            <canvas id="chart-soil"></canvas>
         </div>
         <div class="chart-container">
             <h3>Luftfeuchtigkeit Verlauf</h3>
-            <iframe id="frame-air" class="plotly-frame"></iframe>
+            <canvas id="chart-air"></canvas>
         </div>
     </div>
 
@@ -60,5 +61,8 @@
     </div>
 </div>
 
+<!-- Chart.js für Diagramme -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='plant.js') }}"></script>
 <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 {% endblock %}
