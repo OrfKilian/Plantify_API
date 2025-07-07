@@ -8,14 +8,27 @@ function loadPlots(baseUrl) {
         'plot-soil': 'soil',
         'plot-air': 'luftfeuchtigkeit'
     };
+
+    function insertWithScripts(target, html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const scripts = tmp.querySelectorAll('script');
+        scripts.forEach(s => s.remove());
+        target.innerHTML = tmp.innerHTML;
+        scripts.forEach(s => {
+            const copy = document.createElement('script');
+            if (s.src) copy.src = s.src;
+            if (s.textContent) copy.textContent = s.textContent;
+            target.appendChild(copy);
+        });
+    }
+
     Object.entries(map).forEach(([elementId, plot]) => {
         const el = document.getElementById(elementId);
         if (!el) return;
         fetch(`${baseUrl}/plots/${plot}?pot_id=${potId}`)
             .then(r => r.text())
-            .then(html => {
-                el.innerHTML = html;
-            })
+            .then(html => insertWithScripts(el, html))
             .catch(err => console.error('Failed to load plot', plot, err));
     });
 }

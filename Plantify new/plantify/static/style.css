@@ -267,6 +267,11 @@ iframe.plotly-frame {
     border: none;
 }
 
+div[id^="plot-"] {
+    width: 100%;
+    min-height: 400px;
+}
+
 /* Charts card layout */
 .charts-card {
     grid-column: 1 / span 2;
