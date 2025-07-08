@@ -240,6 +240,22 @@ body.sidebar-collapsed .content {
     min-height: unset;
     padding-bottom: 20px;
 }
+.welcome-card {
+    background-color: #2E7D32;
+    color: #fff;
+    text-align: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+.welcome-card h2 {
+    margin: 0 0 10px;
+    font-size: 32px;
+    line-height: 1.2;
+}
+.welcome-card p {
+    margin: 0;
+    font-size: 18px;
+}
 /* Pflegehinweise Tabelle */
 #care-guidelines table {
     width: 100%;
