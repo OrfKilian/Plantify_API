@@ -4,6 +4,7 @@ import os
 import base64
 from hashlib import pbkdf2_hmac
 from email_validator import validate_email, EmailNotValidError
+import requests
 
 
 app = Flask(__name__)
@@ -15,69 +16,56 @@ if not secret_key:
         raise RuntimeError('SECRET_KEY environment variable not set')
 app.secret_key = secret_key
 
-# Simple credential storage for demonstration purposes
-# Mapping of email to hashed password
-USERS = {
-    'test@example.com': '+JohIimbQbihTWMEPHZRtDILR3EWB9rVufFhCYV8qkpYotkCyhLN11B6tQxgl1Is'
-}
-# Dummy-Daten für Dashboard und Pflanzen
-ROOMS = [
-    {"name": "Wohnzimmer"},
-    {"name": "Badezimmer"},
-    {"name": "Balkon"}
-]
+API_BASE = os.environ.get('API_URL', 'http://localhost:5001')
 
-PLANTS = [
-    {
-        "id": 1,
-        "name": "Tomate",
-        "facts": "",
-        "room": None,
-        "target_temperature": 22,
-        "target_air_humidity": 50,
-        "target_ground_humidity": 40,
-    },
-    {
-        "id": 2,
-        "name": "Orchidee",
-        "facts": "",
-        "room": None,
-        "target_temperature": 22,
-        "target_air_humidity": 50,
-        "target_ground_humidity": 40,
-    },
-    {
-        "id": 3,
-        "name": "Monstera",
-        "facts": "",
-        "room": None,
-        "target_temperature": 22,
-        "target_air_humidity": 50,
-        "target_ground_humidity": 40,
-    },
-    {
-        "id": 4,
-        "name": "Strelitzie",
-        "facts": "",
-        "room": None,
-        "target_temperature": 22,
-        "target_air_humidity": 50,
-        "target_ground_humidity": 40,
-    },
-    {
-        "id": 5,
-        "name": "Orchidee 2",
-        "facts": "",
-        "room": None,
-        "target_temperature": 22,
-        "target_air_humidity": 50,
-        "target_ground_humidity": 40,
-    },
-]
+PLANT_OVERRIDES = {}
+
+def fetch_rooms():
+    user = session.get('user_id')
+    if not user:
+        return []
+    try:
+        r = requests.get(f"{API_BASE}/json/pots", params={"user_mail": user})
+        if r.status_code == 200:
+            return [
+                {"name": p.get("pot_name", p.get("name", "")), "id": p.get("pot_id")}
+                for p in r.json()
+            ]
+    except requests.RequestException:
+        pass
+    return []
+
+
+def fetch_plants():
+    user = session.get('user_id')
+    if not user:
+        return []
+    try:
+        r = requests.get(f"{API_BASE}/json/plants", params={"user_mail": user})
+        if r.status_code == 200:
+            plants = []
+            for item in r.json():
+                plant = {
+                    "id": item.get("plant_id"),
+                    "name": item.get("name"),
+                    "facts": item.get("description", ""),
+                    "room": item.get("pot_name"),
+                    "target_temperature": item.get("target_temperature_celsius"),
+                    "target_air_humidity": item.get("target_air_humidity_percent"),
+                    "target_ground_humidity": item.get("target_soil_moisture_percent"),
+                }
+                if plant["id"] in PLANT_OVERRIDES:
+                    plant.update(PLANT_OVERRIDES[plant["id"]])
+                plants.append(plant)
+            return plants
+    except requests.RequestException:
+        pass
+    return []
+
 
 @app.context_processor
 def inject_sidebar_data():
-    return dict(rooms=ROOMS, plants=PLANTS)
+    return dict(rooms=fetch_rooms(), plants=fetch_plants())
 
 def slugify(value: str) -> str:
     return value.lower().replace(" ", "-")
@@ -122,12 +110,26 @@ def login_required(f):
 def index():
     return render_template('home.html')
 
+def get_password_hash(email: str) -> str | None:
+    try:
+        r = requests.get(f"{API_BASE}/json/password_hash", params={"user_mail": email})
+        if r.status_code == 200:
+            data = r.json()
+            if isinstance(data, list) and data:
+                return data[0].get("password_hash")
+            if isinstance(data, dict):
+                return data.get("password_hash")
+    except requests.RequestException:
+        pass
+    return None
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        hashed = USERS.get(email)
+        hashed = get_password_hash(email)
         if hashed and check_password(password, hashed):
             session['user_id'] = email
             next_page = request.args.get('next')
@@ -144,10 +146,12 @@ def logout():
 @app.route('/dashboard/<slug>')
 @login_required
 def dashboard(slug):
-    room = next((r for r in ROOMS if slugify(r['name']) == slug), None)
+    rooms = fetch_rooms()
+    plants = fetch_plants()
+    room = next((r for r in rooms if slugify(r['name']) == slug), None)
     if not room:
         return "Zimmer nicht gefunden", 404
-    room_plants = [p for p in PLANTS if p.get('room') == room['name']]
+    room_plants = [p for p in plants if p.get('room') == room['name']]
     return render_template('dashboard.html', room=room['name'], room_slug=slug,
                            room_plants=room_plants)
 
@@ -155,44 +159,34 @@ def dashboard(slug):
 @app.route('/rooms')
 @login_required
 def rooms_page():
-    room_entries = [{'name': r['name'], 'slug': slugify(r['name'])} for r in ROOMS]
+    rooms = fetch_rooms()
+    room_entries = [{'name': r['name'], 'slug': slugify(r['name'])} for r in rooms]
     return render_template('rooms.html', rooms=room_entries)
 
 # Plantendetail und Bearbeitung
 @app.route('/pflanze/<slug>')
 @login_required
 def plant_detail(slug):
-    # Slugs are generated as '<name>-<id>' to allow duplicate plant names.
+    plants = fetch_plants()
+    rooms = fetch_rooms()
     plant = None
     plant_id_part = slug.rsplit('-', 1)[-1]
     if plant_id_part.isdigit():
-        plant = next((p for p in PLANTS if str(p['id']) == plant_id_part), None)
-    if not plant:  # Fallback for old slugs without id
-        plant = next((p for p in PLANTS if slugify(p['name']) == slug), None)
+        plant = next((p for p in plants if str(p['id']) == plant_id_part), None)
+    if not plant:
+        plant = next((p for p in plants if slugify(p['name']) == slug), None)
     if not plant:
         return "Pflanze nicht gefunden", 404
-    return render_template('plant.html', plant=plant, rooms=ROOMS,
+    return render_template('plant.html', plant=plant, rooms=rooms,
                            trivial=plant['name'], botanisch=plant['name'])
 
 @app.route('/api/plant/<int:plant_id>', methods=['POST'])
 @login_required
 def update_plant_api(plant_id: int):
-    """Update plant data in the in-memory list."""
     data = request.get_json(silent=True) or {}
-    plant = next((p for p in PLANTS if p['id'] == plant_id), None)
-    if not plant:
-        return jsonify({'error': 'Plant not found'}), 404
-    allowed = {
-        'facts',
-        'name',
-        'room',
-        'target_temperature',
-        'target_air_humidity',
-        'target_ground_humidity',
-    }
-    for key in allowed:
-        if key in data:
-            plant[key] = data[key]
+    if plant_id not in PLANT_OVERRIDES:
+        PLANT_OVERRIDES[plant_id] = {}
+    PLANT_OVERRIDES[plant_id].update(data)
     return jsonify({'success': True})
 
 # Einstellungen
@@ -209,10 +203,17 @@ def settings():
 def change_email():
     new_email = request.form.get('new_email')
     current_email = session.get('user_id')
-    if new_email and is_valid_email(new_email) and current_email in USERS:
-        USERS[new_email] = USERS.pop(current_email)
-        session['user_id'] = new_email
-        return redirect(url_for('settings', msg_email='success'))
+    if new_email and is_valid_email(new_email) and current_email:
+        try:
+            r = requests.get(
+                f"{API_BASE}/update/update-user_mail",
+                params={"user_mail_new": new_email, "user_mail": current_email},
+            )
+            if r.status_code == 200:
+                session['user_id'] = new_email
+                return redirect(url_for('settings', msg_email='success'))
+        except requests.RequestException:
+            pass
     return redirect(url_for('settings', msg_email='error'))
 
 
@@ -223,13 +224,22 @@ def change_password():
     new_pw = request.form.get('new_password')
     confirm_pw = request.form.get('confirm_password')
     current_email = session.get('user_id')
-    hashed = USERS.get(current_email)
+    hashed = get_password_hash(current_email) if current_email else None
     if not hashed or not check_password(current_pw, hashed):
         return redirect(url_for('settings', msg_pw='wrong'))
     if not new_pw or new_pw != confirm_pw:
         return redirect(url_for('settings', msg_pw='mismatch'))
-    USERS[current_email] = hash_password(new_pw)
-    return redirect(url_for('settings', msg_pw='success'))
+    new_hash = hash_password(new_pw)
+    try:
+        r = requests.get(
+            f"{API_BASE}/update/update-user_password",
+            params={"password_hash": new_hash, "user_mail": current_email},
+        )
+        if r.status_code == 200:
+            return redirect(url_for('settings', msg_pw='success'))
+    except requests.RequestException:
+        pass
+    return redirect(url_for('settings', msg_pw='error'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -244,13 +254,21 @@ def register():
             return render_template('register.html', error='Ungültige E-Mail-Adresse!')
         if password != confirm:
             return render_template('register.html', error='Passwörter stimmen nicht überein!')
-        if email in USERS:
+        if get_password_hash(email):
             return render_template('register.html', error='E-Mail existiert bereits!')
 
         hashed = hash_password(password)
-        USERS[email] = hashed
-        session['user_id'] = email
-        return redirect(url_for('index'))
+        try:
+            r = requests.get(
+                f"{API_BASE}/insert/insert-user",
+                params={"user_mail": email, "password_hash": hashed},
+            )
+            if r.status_code == 200:
+                session['user_id'] = email
+                return redirect(url_for('index'))
+        except requests.RequestException:
+            pass
+        return render_template('register.html', error='Registrierung fehlgeschlagen!')
 
     return render_template('register.html')
 
