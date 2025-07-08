@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from functools import wraps
 import os
-import bcrypt
+import base64
+from hashlib import pbkdf2_hmac
 from email_validator import validate_email, EmailNotValidError
 
 
@@ -17,7 +18,7 @@ app.secret_key = secret_key
 # Simple credential storage for demonstration purposes
 # Mapping of email to hashed password
 USERS = {
-    'test@example.com': bcrypt.hashpw(b'test123', bcrypt.gensalt()).decode('utf-8')
+    'test@example.com': '+JohIimbQbihTWMEPHZRtDILR3EWB9rVufFhCYV8qkpYotkCyhLN11B6tQxgl1Is'
 }
 # Dummy-Daten für Dashboard und Pflanzen
 ROOMS = [
@@ -91,6 +92,22 @@ def is_valid_email(email: str) -> bool:
     except EmailNotValidError:
         return False
 
+def hash_password(password: str) -> str:
+    """Hash a password using PBKDF2 with SHA-256."""
+    salt = os.urandom(16)
+    dk = pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    return base64.b64encode(salt + dk).decode('utf-8')
+
+def check_password(password: str, hashed: str) -> bool:
+    """Verify a password against the stored hash."""
+    try:
+        data = base64.b64decode(hashed.encode('utf-8'))
+    except (TypeError, ValueError):
+        return False
+    salt, dk = data[:16], data[16:]
+    new_dk = pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    return new_dk == dk
+
 # --- Login-Decorator für geschützte Seiten ---
 def login_required(f):
     @wraps(f)
@@ -111,7 +128,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
         hashed = USERS.get(email)
-        if hashed and bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8')):
+        if hashed and check_password(password, hashed):
             session['user_id'] = email
             next_page = request.args.get('next')
             return redirect(next_page or url_for('index'))
@@ -207,11 +224,11 @@ def change_password():
     confirm_pw = request.form.get('confirm_password')
     current_email = session.get('user_id')
     hashed = USERS.get(current_email)
-    if not hashed or not bcrypt.checkpw(current_pw.encode('utf-8'), hashed.encode('utf-8')):
+    if not hashed or not check_password(current_pw, hashed):
         return redirect(url_for('settings', msg_pw='wrong'))
     if not new_pw or new_pw != confirm_pw:
         return redirect(url_for('settings', msg_pw='mismatch'))
-    USERS[current_email] = bcrypt.hashpw(new_pw.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    USERS[current_email] = hash_password(new_pw)
     return redirect(url_for('settings', msg_pw='success'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -230,7 +247,7 @@ def register():
         if email in USERS:
             return render_template('register.html', error='E-Mail existiert bereits!')
 
-        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        hashed = hash_password(password)
         USERS[email] = hashed
         session['user_id'] = email
         return redirect(url_for('index'))
