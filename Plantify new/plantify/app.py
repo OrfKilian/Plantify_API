@@ -10,10 +10,12 @@ import requests
 app = Flask(__name__)
 secret_key = os.environ.get('SECRET_KEY')
 if not secret_key:
-    if os.environ.get('FLASK_ENV') == 'development':
-        secret_key = 'dev-secret'
-    else:
-        raise RuntimeError('SECRET_KEY environment variable not set')
+    print(
+        "WARNING: SECRET_KEY environment variable not set - using insecure "
+        "development key",
+        flush=True,
+    )
+    secret_key = 'dev-secret'
 app.secret_key = secret_key
 
 API_BASE = os.environ.get('API_URL', 'http://localhost:5001')
