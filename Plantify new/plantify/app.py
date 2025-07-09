@@ -5,6 +5,7 @@ import base64
 from hashlib import pbkdf2_hmac
 from email_validator import validate_email, EmailNotValidError
 import requests
+from typing import Optional
 
 
 app = Flask(__name__)
@@ -112,7 +113,7 @@ def login_required(f):
 def index():
     return render_template('home.html')
 
-def get_password_hash(email: str) -> str | None:
+def get_password_hash(email: str) -> Optional[str]:
     try:
         r = requests.get(f"{API_BASE}/json/password_hash", params={"user_mail": email})
         if r.status_code == 200:
