@@ -37,7 +37,7 @@ function loadLatestValues(baseUrl) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const apiBase = 'http://localhost:5001';
+    const apiBase = window.API_BASE || 'http://localhost:5001';
     loadPlots(apiBase);
     loadLatestValues(apiBase);
 });

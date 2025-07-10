@@ -6,6 +6,9 @@
     <title>{% block title %}Plantify{% endblock %}</title>
     <link rel="stylesheet" href="/static/style.css">
     <!-- Sidebar is now rendered server-side -->
+    <script>
+      window.API_BASE = '{{ api_base }}';
+    </script>
 </head>
 <body class="{% if not session.user_id %}auth-layout{% endif %}">
     <div class="topbar">
