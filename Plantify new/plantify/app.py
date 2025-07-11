@@ -68,7 +68,7 @@ def fetch_plants():
 
 @app.context_processor
 def inject_sidebar_data():
-    return dict(rooms=fetch_rooms(), plants=fetch_plants())
+    return dict(rooms=fetch_rooms(), plants=fetch_plants(), api_base=API_BASE)
 
 def slugify(value: str) -> str:
     return value.lower().replace(" ", "-")
