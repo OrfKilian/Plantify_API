@@ -63,7 +63,10 @@ def fetch_rooms():
     if not user:
         return []
     try:
-        r = requests.get(f"{API_BASE}/json/pots", params={"user_mail": user})
+        r = requests.post(
+            f"{API_BASE}/json/pots",
+            json={"user_mail": user},
+        )
         if r.status_code == 200:
             return [
                 {"name": p.get("pot_name", p.get("name", "")), "id": p.get("pot_id")}
@@ -79,7 +82,10 @@ def fetch_plants():
     if not user:
         return []
     try:
-        r = requests.get(f"{API_BASE}/json/plants", params={"user_mail": user})
+        r = requests.post(
+            f"{API_BASE}/json/plants",
+            json={"user_mail": user},
+        )
         if r.status_code == 200:
             plants = []
             for item in r.json():
