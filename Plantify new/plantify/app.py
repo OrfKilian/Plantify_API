@@ -55,6 +55,7 @@ def ensure_test_user():
 
 API_BASE = os.environ.get('API_URL', 'http://localhost:5001')
 
+
 PLANT_OVERRIDES = {}
 
 def fetch_rooms():
@@ -68,8 +69,8 @@ def fetch_rooms():
                 {"name": p.get("pot_name", p.get("name", "")), "id": p.get("pot_id")}
                 for p in r.json()
             ]
-    except requests.RequestException:
-        pass
+    except requests.RequestException as exc:
+        print("Failed to fetch rooms from API:", exc)
     return []
 
 
@@ -95,8 +96,8 @@ def fetch_plants():
                     plant.update(PLANT_OVERRIDES[plant["id"]])
                 plants.append(plant)
             return plants
-    except requests.RequestException:
-        pass
+    except requests.RequestException as exc:
+        print("Failed to fetch plants from API:", exc)
     return []
 
 
