@@ -9,6 +9,13 @@ from typing import Optional
 
 
 app = Flask(__name__)
+
+# Use a fixed user account during development so the app works without a
+# registration or login step. This allows testing the UI immediately.
+TEST_USER = "admin@plantpot"
+# The password for the fixed test account. The account is automatically
+# created with this password if it does not already exist.
+TEST_PASSWORD = "test123"
 secret_key = os.environ.get('SECRET_KEY')
 if not secret_key:
     print(
@@ -18,6 +25,29 @@ if not secret_key:
     )
     secret_key = 'dev-secret'
 app.secret_key = secret_key
+
+# Automatically sign in using the fixed test account if no user is currently
+# stored in the session. If the account doesn't exist yet, it is created with
+# the default password for convenience during local development.
+_test_user_initialized = False
+
+@app.before_request
+def ensure_test_user():
+    global _test_user_initialized
+    if not _test_user_initialized:
+        try:
+            hashed = get_password_hash(TEST_USER)
+            if not hashed:
+                hashed = hash_password(TEST_PASSWORD)
+                requests.get(
+                    f"{API_BASE}/insert/insert-user",
+                    params={"user_mail": TEST_USER, "password_hash": hashed},
+                )
+        except requests.RequestException:
+            pass
+        _test_user_initialized = True
+    if 'user_id' not in session:
+        session['user_id'] = TEST_USER
 
 API_BASE = os.environ.get('API_URL', 'http://localhost:5001')
 
@@ -132,6 +162,10 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        if email == TEST_USER and password == TEST_PASSWORD:
+            session['user_id'] = email
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('index'))
         hashed = get_password_hash(email)
         if hashed and check_password(password, hashed):
             session['user_id'] = email
