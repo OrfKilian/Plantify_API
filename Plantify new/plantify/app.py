@@ -1,4 +1,8 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, Request
+
+# expose form values via request.post(...)
+if not hasattr(Request, "post"):
+    Request.post = lambda self, key, default=None: self.form.get(key, default)
 from functools import wraps
 import os
 import base64
@@ -238,7 +242,7 @@ def settings():
 @app.route('/settings/change-email', methods=['POST'])
 @login_required
 def change_email():
-    new_email = request.form.get('new_email')
+    new_email = request.post('new_email')
     current_email = session.get('user_id')
     if new_email and is_valid_email(new_email) and current_email:
         try:
@@ -257,9 +261,9 @@ def change_email():
 @app.route('/settings/change-password', methods=['POST'])
 @login_required
 def change_password():
-    current_pw = request.form.get('current_password')
-    new_pw = request.form.get('new_password')
-    confirm_pw = request.form.get('confirm_password')
+    current_pw = request.post('current_password')
+    new_pw = request.post('new_password')
+    confirm_pw = request.post('confirm_password')
     current_email = session.get('user_id')
     hashed = get_password_hash(current_email) if current_email else None
     if not hashed or not check_password(current_pw, hashed):
@@ -281,9 +285,9 @@ def change_password():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm = request.form.get('confirm_password')
+        email = request.post('email')
+        password = request.post('password')
+        confirm = request.post('confirm_password')
 
         if not email or not password:
             return render_template('register.html', error='E-Mail und Passwort benötigt!')
